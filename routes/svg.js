@@ -4,7 +4,7 @@ const { getSVG } = require("../controllers/svg");
 const { check } = require("express-validator");
 
 
-router.post(
+router.get(
   "/getSVG",
   [
     check("text", "text is required").isLength({ min: 1 }),

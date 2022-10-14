@@ -1,7 +1,7 @@
 const { validationResult } = require("express-validator");
 var makerjs = require("makerjs");
 var opentype = require("../models/opentype.js");
-const axios = require('axios');
+const axios = require("axios");
 
 function callMakerjs(
   font,
@@ -61,17 +61,16 @@ exports.getSVG = (req, res) => {
   );
 
   Promise.all(promises).then((results) => {
-
     var data = req.query;
-    var variant ;
+    var variant;
     var url;
 
-    results[0].items.forEach(function (font) { 
-      if(font.family.toLowerCase() === data.font.toLowerCase()){
-        if(data.variant){
-          for(var i =0;i< font.variants.length ;i++){
-            if(font.variants[i].toLowerCase() === data.variant.toLowerCase()){
-              console.log("variant matches"+variant)
+    results[0].items.forEach(function (font) {
+      if (font.family.toLowerCase() === data.font.toLowerCase()) {
+        if (data.variant) {
+          for (var i = 0; i < font.variants.length; i++) {
+            if (font.variants[i].toLowerCase() === data.variant.toLowerCase()) {
+              console.log("variant matches" + variant);
               variant = font.variants[i];
               break;
             }
@@ -80,15 +79,13 @@ exports.getSVG = (req, res) => {
         } else {
           variant = font.variants[0];
         }
-        console.log("variant "+variant);
         url = font.files[variant].substring(5);
-        console.log("url "+ url);
       }
     });
     var resp;
-    opentype.load(
-      "https:"+url,
-      function (err, font) {
+    try {
+      console.log(url);
+      opentype.load("https:" + url, function (err, font) {
         if (err) {
           console.log(err);
         }
@@ -128,24 +125,30 @@ exports.getSVG = (req, res) => {
         );
         res.clearCookie("token");
         return res.status(200).send(resp);
-      }
-    );
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        msg: "Internal server error",
+        error: err,
+      });
+    }
   });
 };
 
 function getFontsFromGoogle(url) {
   var aPromise = new Promise(function (resolve, reject) {
     axios({
-      method: 'get',
+      method: "get",
       url: url,
-    }).then(function (response) {
-      resolve(response.data);
     })
-    .catch(function (error) {
-      console.log(error);
-      reject(error);
-    });
+      .then(function (response) {
+        resolve(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+        reject(error);
+      });
   });
   return aPromise;
 }
-

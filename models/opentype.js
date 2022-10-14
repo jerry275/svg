@@ -14199,7 +14199,6 @@ var XMLHttpRequest = require('xhr2');
 	            }
 	            var font;
 	            try {
-					console.log("try");
 	                font = parseBuffer(arrayBuffer, opt);
 	            } catch (e) {
 					console.log("catch");
