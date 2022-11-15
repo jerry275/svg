@@ -41,6 +41,7 @@ function callMakerjs(
     fillRule: fillRule ? fillRule : undefined,
     scalingStroke: !strokeNonScaling,
   });
+  //console.log(svg);
   return svg;
 }
 
@@ -62,10 +63,14 @@ exports.getSVG = (req, res) => {
 
   Promise.all(promises).then((results) => {
     var data = req.query;
-    var variant;
+
+    data = req.query;
+
     var url;
 
     results[0].items.forEach(function (font) {
+      var variant;
+
       if (font.family.toLowerCase() === data.font.toLowerCase()) {
         if (data.variant) {
           for (var i = 0; i < font.variants.length; i++) {
@@ -84,28 +89,40 @@ exports.getSVG = (req, res) => {
     });
     var resp;
     try {
-      console.log(url);
+      
+   
       opentype.load("https:" + url, function (err, font) {
         if (err) {
           console.log(err);
         }
+        console.log(url);
         var text = data.text;
         var size = data.size ? data.size : 100;
-        var union = data.union ? data.union : false;
-        var filled = data.filled ? data.filled : true;
-        var kerning = data.kerning ? data.kerning : true;
-        var separate = data.separate ? data.separate : false;
-        var bezierAccuracy = data.bezierAccuracy
-          ? data.bezierAccuracy
-          : undefined;
-        var stroke = data.stroke ? data.stroke : "#000";
-        var strokeWidth = data.strokeWidth ? data.strokeWidth : "0.25mm";
+        var union = data.union ? JSON.parse(data.union.toLowerCase()) : false;
+        var filled = data.filled ? JSON.parse(data.filled.toLowerCase()) : true;
+        var kerning = data.kerning ? JSON.parse(data.kerning.toLowerCase()) : true;
+        var separate = data.separate ? JSON.parse(data.separate.toLowerCase()) : false;
+        var bezierAccuracy  = undefined;
+        try{
+          if(data.bezierAccuracy && !isNaN(data.bezierAccuracy) && Number(data.bezierAccuracy) > 0){
+            bezierAccuracy = parseFloat(data.bezierAccuracy);
+          }
+        }catch(err){
+          bezierAccuracy = undefined;
+        }
+        var stroke = data.stroke ? data.stroke : '#000';
+        var strokeWidth = data.strokeWidth ? data.strokeWidth : '0.25mm';
         var strokeNonScaling = data.strokeNonScaling
           ? data.strokeNonScaling
           : true;
-        var fillRule = data.fillRule ? data.fillRule : "evenodd";
-        var units = data.units ? data.units : "cm";
-        var fill = data.fill ? data.fill : "#000";
+        var fillRule = data.fillRule ? data.fillRule : 'evenodd';
+        var units = data.units ? data.units : 'cm';
+        var fill = data.fill ? data.fill : '#000';
+
+
+    console.log("text "+text+" size "+size+" union "+union+" filled "+filled+" kerning "+kerning+
+    " separate "+separate+ " bezierAccuracy "+bezierAccuracy+ " stroke "+stroke+" strokeWidth "+strokeWidth+
+    " strokeNonScaling "+strokeNonScaling+" fillRule "+fillRule+" units "+units+" fill "+fill);
 
         resp = callMakerjs(
           font,
