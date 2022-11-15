@@ -47,10 +47,30 @@ function callMakerjs(
 
 exports.getSVG = (req, res) => {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(422).json({
       error: errors.array()[0].msg,
+    });
+  }
+
+  if(req.query.union && !(req.query.union.toLowerCase() == "true" || req.query.union.toLowerCase() == "false")) {
+    return res.status(422).json({
+      error: "Field-union must be a boolean true or false",
+    });
+  }
+  if(req.query.filled && !(req.query.filled.toLowerCase() == "true" || req.query.filled.toLowerCase() == "false")) {
+    return res.status(422).json({
+      error: "Field-filled must be a boolean true or false",
+    });
+  }
+  if(req.query.kerning && !(req.query.kerning.toLowerCase() == "true" || req.query.kerning.toLowerCase() == "false")) {
+    return res.status(422).json({
+      error: "Field-kerning must be a boolean true or false",
+    });
+  }
+  if(req.query.separate && !(req.query.separate.toLowerCase() == "true" || req.query.separate.toLowerCase() == "false")) {
+    return res.status(422).json({
+      error: "Field-separate must be a boolean true or false",
     });
   }
 
